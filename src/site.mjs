@@ -105,6 +105,7 @@ export function layout({ path, title, desc, h1, body, ld = [], calcPage = false,
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(desc)}">
+${path === '/' ? '<meta name="google-site-verification" content="xg8Ui44v1MTQmc1zS5UIicvvIVbKa8OwljL6aXiQQxc" />' : ''}
 <link rel="canonical" href="${canonical}">
 ${noindex ? '<meta name="robots" content="noindex">' : '<meta name="robots" content="index, follow, max-image-preview:large">'}
 <meta property="og:type" content="website"><meta property="og:site_name" content="${SITE.name}">
