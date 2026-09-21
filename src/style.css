@@ -1,9 +1,9 @@
 /* Salary Calculator UK - "Sterling Ledger" design system */
 :root {
   --canvas: #f8fafc; --surface: #ffffff; --muted: #f1f5f9; --line: #e2e8f0; --line-strong: #cbd5e1;
-  --ink: #0f172a; --ink-2: #1e293b; --slate: #64748b; --slate-2: #475569;
+  --ink: #0f172a; --ink-2: #1e293b; --slate: #566577; --slate-2: #475569;
   --cobalt: #2563eb; --cobalt-d: #1d4ed8; --cobalt-soft: #eff6ff;
-  --green: #059669; --green-soft: #d1fae5; --amber: #d97706; --amber-soft: #fef3c7; --purple: #7c3aed;
+  --green: #047857; --green-soft: #d1fae5; --amber: #d97706; --amber-soft: #fef3c7; --purple: #7c3aed;
   --red: #ba1a1a;
   --r-sm: 8px; --r-md: 12px; --r-lg: 16px; --r-xl: 24px;
   --shadow-1: 0 0 0 1px rgba(226,232,240,.8), 0 1px 3px 0 rgba(15,23,42,.03), 0 1px 2px -1px rgba(15,23,42,.03);
@@ -64,7 +64,7 @@ img, svg { max-width: 100%; }
 
 /* Breadcrumb / hero */
 .crumbs { font-size: 13px; color: var(--slate); padding: 16px 0 0; }
-.crumbs a { color: var(--slate-2); text-decoration: none; }
+.crumbs a { color: var(--slate-2); text-decoration: underline; text-underline-offset: 2px; }
 .crumbs a:hover { text-decoration: underline; }
 .crumbs span[aria-hidden] { margin: 0 6px; }
 .hero { padding: 24px 0 8px; position: relative; }
@@ -240,9 +240,9 @@ details.adv .adv-body input, details.adv .adv-body select { background: #fff; }
 
 /* CTA + trust */
 .cta { background: var(--cobalt); color: #fff; border-radius: var(--r-xl); padding: 32px 24px; }
-.cta h2, .cta p { color: #fff; } .cta p { opacity: .9; max-width: 640px; }
+.cta h2, .cta p { color: #fff; } .cta p { max-width: 640px; }
 .cta .btn { background: #fff; color: var(--cobalt-d); }
-.cta .btn.alt { background: rgba(255,255,255,.14); color: #fff; }
+.cta .btn.alt { background: rgba(0,0,0,.22); color: #fff; }
 .cta-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
 .trust { background: #eff4ff; border-radius: var(--r-xl); padding: 28px 20px; text-align: center; }
 .trust-grid { display: grid; gap: 12px; margin: 20px auto; max-width: 860px; text-align: left; }
@@ -259,7 +259,7 @@ details.adv .adv-body input, details.adv .adv-body select { background: #fff; }
 .site-footer { background: #fff; border-top: 1px solid rgba(195,198,215,.35); margin-top: 32px; padding: 40px 0 24px; }
 .foot-grid { display: grid; gap: 28px; }
 @media (min-width: 768px) { .foot-grid { grid-template-columns: 2fr 1fr 1fr 1fr; } }
-.foot-grid h4 { font: 600 12px var(--body); letter-spacing: .06em; text-transform: uppercase; margin-bottom: 12px; }
+.foot-grid .foot-h { font: 600 12px var(--body); letter-spacing: .06em; text-transform: uppercase; margin-bottom: 12px; }
 .foot-grid ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
 .foot-grid a { color: var(--slate-2); text-decoration: none; font-size: 14px; } .foot-grid a:hover { color: var(--cobalt); }
 .foot-grid p { color: var(--slate-2); font-size: 14px; max-width: 380px; }
@@ -275,3 +275,8 @@ details.adv .adv-body input, details.adv .adv-body select { background: #fff; }
   .mbar strong { font: 700 20px var(--head); color: var(--green); font-variant-numeric: tabular-nums; }
 }
 noscript .card { margin-top: 16px; }
+
+/* grid children must be allowed to shrink so wide tables scroll inside their wrapper instead of stretching the page */
+.cols2 > *, .cols3 > *, .cols4 > * { min-width: 0; }
+.tbl th { position: relative; }
+.table-wrap:focus-visible { outline: 2px solid var(--cobalt, #2563eb); outline-offset: 2px; }

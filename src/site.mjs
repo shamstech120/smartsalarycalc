@@ -1,14 +1,27 @@
 // Site scaffolding: page registry, layout, calculator widget, helpers.
 import { createRequire } from 'node:module';
+import { readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { fileURLToPath } from 'node:url';
 const require = createRequire(import.meta.url);
 export const E = require('./engine.js');
 export const R = require('./render.js');
 export const { gbp, pct } = E;
 
+// Cache-busting token: changes whenever the shipped CSS or JS changes.
+const ASSET_V = (() => {
+  try {
+    const h = createHash('md5');
+    for (const f of ['style.css', 'engine.js', 'render.js', 'calc.js']) h.update(readFileSync(fileURLToPath(new URL('./' + f, import.meta.url))));
+    return h.digest('hex').slice(0, 8);
+  } catch (e) { return new Date().toISOString().slice(0, 10); }
+})();
+
 export const SITE = {
   name: 'Salary Calculator UK',
   url: (process.env.SITE_URL || 'https://smartsalarycalc.co.uk').replace(/\/$/, ''),
   year: '2026/27',
+  ratesChecked: '22 September 2026',
   built: new Date().toISOString().slice(0, 10)
 };
 
@@ -29,7 +42,8 @@ export const CALC_PAGES = [
 export const salaryPath = n => `/${n}-salary-after-tax/`;
 export const LIVE = new Set([
   ...CALC_PAGES.map(p => p.path), ...SALARIES.map(salaryPath), '/tax-brackets-uk/', '/about/',
-  '/privacy-policy/', '/terms-of-service/', '/disclaimer/', '/contact/'
+  '/privacy-policy/', '/terms-of-service/', '/disclaimer/', '/contact/',
+  '/student-loan-repayments/', '/scottish-income-tax/', '/bonus-after-tax/', '/pension-and-take-home-pay/'
 ]);
 export const NOINDEX = new Set(['/privacy-policy/', '/terms-of-service/', '/disclaimer/']);
 export const CONTACT_EMAIL = 'theserpmaster@gmail.com';
@@ -39,7 +53,7 @@ export const NAMES = {
   '/monthly-salary-calculator/': 'Monthly Salary Calculator', '/weekly-salary-calculator/': 'Weekly Salary Calculator',
   '/hourly-salary-calculator/': 'Hourly Salary Calculator', '/salary-after-tax-calculator/': 'Salary After Tax Calculator',
   '/tax-brackets-uk/': 'UK Tax Brackets', '/about/': 'About & Methodology',
-  '/contact/': 'Contact', '/privacy-policy/': 'Privacy Policy', '/terms-of-service/': 'Terms of Service', '/disclaimer/': 'Disclaimer',
+  '/contact/': 'Contact', '/student-loan-repayments/': 'Student Loan Repayments', '/scottish-income-tax/': 'Scottish Income Tax', '/bonus-after-tax/': 'Bonus After Tax', '/pension-and-take-home-pay/': 'Pension and Take-Home Pay', '/privacy-policy/': 'Privacy Policy', '/terms-of-service/': 'Terms of Service', '/disclaimer/': 'Disclaimer',
   ...Object.fromEntries(SALARIES.map(n => [salaryPath(n), `${k(n)} Salary After Tax`]))
 };
 
@@ -82,7 +96,7 @@ export function layout({ path, title, desc, h1, body, ld = [], calcPage = false,
     ...ld
   ] };
   const footCalc = ['/', '/take-home-pay-calculator/', '/income-tax-calculator/', '/national-insurance-calculator/', '/salary-after-tax-calculator/'];
-  const footMore = ['/monthly-salary-calculator/', '/weekly-salary-calculator/', '/hourly-salary-calculator/', '/tax-brackets-uk/', '/about/', '/contact/'];
+  const footMore = ['/monthly-salary-calculator/', '/weekly-salary-calculator/', '/hourly-salary-calculator/', '/tax-brackets-uk/', '/scottish-income-tax/', '/student-loan-repayments/', '/bonus-after-tax/', '/pension-and-take-home-pay/', '/about/', '/contact/'];
   const li = ps => ps.filter(p => LIVE.has(p)).map(p => `<li><a href="${p}">${NAMES[p]}</a></li>`).join('');
   return `<!doctype html>
 <html lang="en-GB">
@@ -95,12 +109,12 @@ export function layout({ path, title, desc, h1, body, ld = [], calcPage = false,
 ${noindex ? '<meta name="robots" content="noindex">' : '<meta name="robots" content="index, follow, max-image-preview:large">'}
 <meta property="og:type" content="website"><meta property="og:site_name" content="${SITE.name}">
 <meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(desc)}"><meta property="og:url" content="${canonical}">
-<meta property="og:locale" content="en_GB"><meta name="twitter:card" content="summary">
+<meta property="og:locale" content="en_GB"><meta property="og:image" content="${SITE.url}/og-image.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="UK salary calculator: take-home pay after tax and National Insurance"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="${SITE.url}/og-image.png">
 <meta name="theme-color" content="#2563eb">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@600;700&family=Inter:wght@400;500;600&display=swap">
-<link rel="stylesheet" href="/style.css?v=${SITE.built}">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@600;700&family=Inter:wght@400;500;600&display=swap" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@600;700&family=Inter:wght@400;500;600&display=swap"></noscript>
+<link rel="stylesheet" href="/style.css?v=${ASSET_V}">
 <script type="application/ld+json">${JSON.stringify(graph)}</script>
 </head>
 <body${calcPage ? ' class="has-mbar"' : ''}>
@@ -116,9 +130,9 @@ ${noindex ? '<meta name="robots" content="noindex">' : '<meta name="robots" cont
   </div>
   <nav class="mobile-nav" id="mnav" aria-label="Mobile">${nav}</nav>
 </header>
-<div id="main" tabindex="-1">
+<main id="main" tabindex="-1">
 ${body}
-</div>
+</main>
 <footer class="site-footer">
   <div class="container">
     <div class="foot-grid">
@@ -127,15 +141,15 @@ ${body}
         <p style="margin-top:12px">Free UK take-home pay calculator. Work out Income Tax, National Insurance, student loan and pension deductions for ${SITE.year}.</p>
         <span class="chip">HMRC ${SITE.year} rates</span>
       </div>
-      <div><h4>Calculators</h4><ul>${li(footCalc)}</ul></div>
-      <div><h4>More</h4><ul>${li(footMore)}</ul></div>
-      <div><h4>Popular salaries</h4><ul>${li(SALARIES.map(salaryPath))}</ul></div>
-      <div><h4>Legal</h4><ul>${li(['/privacy-policy/', '/terms-of-service/', '/disclaimer/'])}</ul></div>
+      <div><div class="foot-h">Calculators</div><ul>${li(footCalc)}</ul></div>
+      <div><div class="foot-h">More</div><ul>${li(footMore)}</ul></div>
+      <div><div class="foot-h">Popular salaries</div><ul>${li(SALARIES.map(salaryPath))}</ul></div>
+      <div><div class="foot-h">Legal</div><ul>${li(['/privacy-policy/', '/terms-of-service/', '/disclaimer/'])}</ul></div>
     </div>
     <div class="foot-base"><span>© ${new Date().getFullYear()} ${SITE.name}. Estimates only, not financial or tax advice.</span><span>Covers England, Scotland, Wales and Northern Ireland.</span></div>
   </div>
 </footer>
-${calcPage ? '<script src="/engine.js?v=' + SITE.built + '" defer></script><script src="/render.js?v=' + SITE.built + '" defer></script><script src="/calc.js?v=' + SITE.built + '" defer></script>' : ''}
+${calcPage ? '<script src="/engine.js?v=' + ASSET_V + '" defer></script><script src="/render.js?v=' + ASSET_V + '" defer></script><script src="/calc.js?v=' + ASSET_V + '" defer></script>' : ''}
 <script>
 (function(){var b=document.getElementById('menu-btn'),m=document.getElementById('mnav');if(!b)return;b.addEventListener('click',function(){var o=m.classList.toggle('open');b.setAttribute('aria-expanded',o?'true':'false');});})();
 </script>
@@ -231,7 +245,7 @@ export const ctaSection = (h = 'Calculate any salary or compare two job offers',
 export const hero = ({ badge, h1, lead, center = false }) => `<section class="hero${center ? ' center' : ''}"><div class="container">
   ${badge ? `<div class="badge"><i></i>${badge}</div>` : ''}<h1>${h1}</h1><p class="lead">${lead}</p></div></section>`;
 
-export const tableWrap = (caption, head, rows, hl = -1) => `<div class="table-wrap"><table class="tbl"><caption>${caption}</caption><thead><tr>${head.map((h, i) => `<th${i ? ' class="r"' : ''}>${h}</th>`).join('')}</tr></thead><tbody>${rows.map((row, ri) =>
+export const tableWrap = (caption, head, rows, hl = -1) => `<div class="table-wrap" tabindex="0" role="region" aria-label="${String(caption).replace(/<[^>]*>/g, '')}"><table class="tbl"><caption>${caption}</caption><thead><tr>${head.map((h, i) => `<th${i ? ' class="r"' : ''}>${h || '<span class="sr-only">Item</span>'}</th>`).join('')}</tr></thead><tbody>${rows.map((row, ri) =>
   `<tr${ri === hl ? ' class="hl"' : ''}>${row.map((c, i) => `<td${i ? ' class="r"' : ''}>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
 
 export const popularTiles = (current) => `<div class="tiles">${SALARIES.map(n => {

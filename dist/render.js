@@ -85,7 +85,7 @@
   }
 
   function bandTables(r) {
-    var t = '<div class="table-wrap"><table class="tbl"><caption>Income Tax by band (' + (r.region === 'scotland' ? 'Scotland' : 'England, Wales &amp; NI') + ', ' + r.yearLabel + ')</caption>' +
+    var t = '<div class="table-wrap" tabindex="0" role="region" aria-label="Income Tax by band"><table class="tbl"><caption>Income Tax by band (' + (r.region === 'scotland' ? 'Scotland' : 'England, Wales &amp; NI') + ', ' + r.yearLabel + ')</caption>' +
       '<thead><tr><th>Band</th><th>Rate</th><th class="r">Income in band</th><th class="r">Tax</th></tr></thead><tbody>';
     r.taxBands.forEach(function (b) {
       if (b.amount <= 0 && !b.isAllowance) return;
@@ -93,7 +93,7 @@
     });
     t += '<tr class="tot"><td colspan="3">Total Income Tax</td><td class="r">' + gbp(r.tax) + '</td></tr></tbody></table></div>';
 
-    var n = '<div class="table-wrap"><table class="tbl"><caption>Employee National Insurance (Class 1, category A)</caption>' +
+    var n = '<div class="table-wrap" tabindex="0" role="region" aria-label="Employee National Insurance bands"><table class="tbl"><caption>Employee National Insurance (Class 1, category A)</caption>' +
       '<thead><tr><th>Band</th><th>Rate</th><th class="r">Pay in band</th><th class="r">NI</th></tr></thead><tbody>';
     r.niBands.forEach(function (b) {
       n += '<tr><td>' + b.name + '</td><td>' + (b.rate * 100).toFixed(0) + '%</td><td class="r">' + gbp(b.amount) + '</td><td class="r">' + gbp(b.ni) + '</td></tr>';

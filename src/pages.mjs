@@ -138,7 +138,7 @@ ${tableWrap('Take-home pay on ' + kfmt(base) + ' with different deductions', ['S
     title: `Take Home Pay Calculator UK ${y} – Salary After All Deductions`,
     desc: `Work out your UK take-home pay for ${y} after Income Tax, National Insurance, pension and student loan. See yearly, monthly, weekly and hourly pay.`,
     h1: 'Take Home Pay Calculator UK', badge: `Take-home pay ${y}`,
-    lead: `Find out exactly what lands in your bank account. Enter your salary and any pension or student loan deductions to see your real take-home pay.`,
+    lead: `Estimate what lands in your bank account. Enter your salary and any pension or student loan deductions to see your take-home pay.`,
     faqItems: [
       ['What is take-home pay?', 'Take-home pay (net pay) is what you receive after your employer deducts Income Tax, National Insurance, pension contributions and any student loan repayments from your gross pay.'],
       ['Why is my payslip different from the calculator?', 'Payslips reflect your actual tax code, how many pay periods have passed, benefits in kind, one-off bonuses and the exact timing of student loan and pension deductions. The calculator assumes a steady annual salary and the standard 1257L code, so expect small differences.'],
@@ -457,9 +457,12 @@ ${sec(`<div class="prose">
 <li>Tax and NI are calculated on annual pay rather than pay period by pay period, so a real payslip can differ slightly, especially for irregular pay.</li></ul>
 <h2>What it does not include</h2><p>Benefits in kind (P11D), the High Income Child Benefit Charge, Marriage Allowance, Blind Person's Allowance, savings and dividend tax, and employer NI.</p>
 <h2>Where the rates come from</h2><ul>
-<li>Income Tax, National Insurance and student loan thresholds: GOV.UK "Rates and thresholds for employers ${y}" and "Income Tax rates and Personal Allowances".</li>
-<li>Scottish Income Tax bands: gov.scot "Scottish Income Tax: rates and bands".</li></ul>
-<p>Rates last reviewed: ${SITE.built}. Always check GOV.UK for the latest official figures.</p>
+<li>National Insurance and student loan thresholds: <a href="https://www.gov.uk/guidance/rates-and-thresholds-for-employers-2026-to-2027" rel="noopener">GOV.UK, Rates and thresholds for employers 2026 to 2027</a>.</li>
+<li>Income Tax bands and the Personal Allowance taper: <a href="https://www.gov.uk/income-tax-rates" rel="noopener">GOV.UK, Income Tax rates and Personal Allowances</a>.</li>
+<li>Scottish Income Tax bands: <a href="https://www.gov.scot/publications/scottish-income-tax-rates-and-bands/pages/2026-to-2027/" rel="noopener">gov.scot, Scottish Income Tax rates and bands 2026 to 2027</a>.</li>
+<li>Threshold freeze: <a href="https://www.gov.uk/government/publications/maintaining-income-tax-and-equivalent-national-insurance-contributions-thresholds-until-5-april-2031" rel="noopener">GOV.UK, thresholds maintained until 5 April 2031</a>.</li></ul>
+<p>Rates and thresholds were last checked against GOV.UK and gov.scot on ${SITE.ratesChecked}. Always check GOV.UK for the latest official figures.</p>
+<h2>Who we are</h2><p>${SITE.name} is an independent website. It is not affiliated with HMRC, GOV.UK or any government body. The rates come from their published pages, listed above, and the guides on this site (student loans, Scottish tax, bonuses and pensions) use the same calculation engine as the calculators.</p>
 <h2>Privacy</h2><p>Calculations run in your browser. The figures you enter are not stored or sent to a server.</p>
 <h2>Disclaimer</h2><p>This tool gives estimates for general planning and is not financial, tax or legal advice. Speak to a qualified adviser or HMRC about your own circumstances.</p>
 </div>`)}`;
@@ -525,6 +528,168 @@ ${sec(`<div class="prose">
   return layout({ path, title: `Contact – ${SITE.name}`, desc: `Contact ${SITE.name} with questions, corrections or suggestions.`, h1: 'Contact', body, crumbs: breadcrumb(path, 'Contact') });
 }
 
+
+// ---- Guide pages (Phase 2): every figure below is computed by the shared engine -------------------------
+const guideShell = ({ path, name, title, desc, badge, h1, lead, sections, f, relatedPaths }) => {
+  const crumbs = breadcrumb(path, name);
+  const body = `${crumbsHtml(crumbs)}
+${hero({ badge, h1, lead })}
+${sections.join('\n')}
+${faqSection(f)}
+${related(relatedPaths)}
+${ctaSection()}
+${trustSection()}`;
+  return layout({ path, title, desc, h1, body, crumbs, ld: [f.ld] });
+};
+const sal = n => salLink(n);
+const perMonth = v => gbp(v / 12);
+
+// Student loans
+function studentLoanPage() {
+  const path = '/student-loan-repayments/';
+  const plans = [
+    ['plan1', 'Plan 1', 'Generally: started in England or Wales before September 2012, or studied in Northern Ireland'],
+    ['plan2', 'Plan 2', 'Generally: started in England or Wales from September 2012 to July 2023'],
+    ['plan4', 'Plan 4', 'Studied in Scotland'],
+    ['plan5', 'Plan 5', 'Generally: started in England from August 2023']
+  ];
+  const thresholdRows = [...plans.map(([k, n, who]) => [n, who, gbp(Y.loans[k]), gbp(Y.loans[k] / 12), '9%']), ['Postgraduate loan', 'Master&rsquo;s or doctoral loan, on top of any plan above', gbp(Y.pgThreshold), gbp(Y.pgThreshold / 12), '6%']];
+  const sals = [25000, 30000, 35000, 40000, 50000, 60000, 80000];
+  const rows = sals.map(n => [sal(n), ...plans.map(([k]) => gbp(calc(n, { ...UK, studentLoan: k }).studentLoan)), gbp(calc(n, { ...UK, postgrad: true }).postgrad)]);
+  const ex = calc(40000, { ...UK, studentLoan: 'plan2' }), ex0 = calc(40000, UK);
+  const both = calc(40000, { ...UK, studentLoan: 'plan2', postgrad: true });
+  const f = faq([
+    ['How much of my salary goes on student loan repayments?', `You repay 9% of the amount you earn above your plan threshold, plus 6% of earnings above ${gbp(Y.pgThreshold)} if you also have a postgraduate loan. On a ${kfmt(40000)} salary a Plan 2 loan takes ${gbp(ex.studentLoan)} a year (${perMonth(ex.studentLoan)} a month).`],
+    ['Which student loan plan am I on?', `It depends on where and when you started your course. Check your online account with the Student Loans Company or look at GOV.UK&rsquo;s student loan guidance if you are unsure. You can be on more than one plan and you can also have a postgraduate loan.`],
+    ['Do I repay if I earn less than the threshold?', 'No. You repay nothing in any pay period where you earn below the threshold for your plan.'],
+    ['Are repayments worked out yearly or every pay period?', 'Your employer works them out each pay period from your pay in that period, not from your annual salary. A large bonus in one month can therefore mean a bigger deduction that month. Our calculator uses annual figures, so a real payslip can differ slightly for irregular pay.'],
+    ['Does a pension contribution reduce my student loan repayment?', `It depends on how the pension is paid. Repayments are based on pay that is subject to National Insurance, so salary sacrifice lowers them, while a net pay arrangement does not. Try both in the ${link('/take-home-pay-calculator/', 'take-home pay calculator')}.`],
+    ['Where do the thresholds come from?', `From GOV.UK&rsquo;s &ldquo;Rates and thresholds for employers ${y}&rdquo;. They are reviewed each April, so check GOV.UK for changes. ${link('/about/', 'Our methodology')} lists all sources.`]
+  ]);
+  return guideShell({
+    path, name: 'Student Loan Repayments', badge: `Tax year ${y}`, h1: 'Student Loan Repayments UK',
+    title: `Student Loan Repayments UK ${y}: Thresholds and Examples`,
+    desc: `Student loan repayment thresholds for ${y} (Plans 1, 2, 4, 5 and postgraduate) with worked examples of how much you repay at £25k to £80k.`,
+    lead: `How much comes out of your pay for each student loan plan in ${y}, with the repayment thresholds and worked examples at common salaries.`,
+    sections: [
+      sec(`${head(`Repayment thresholds ${y}`, 'You repay a percentage of what you earn above the threshold for your plan.')}${tableWrap(`Student loan thresholds and rates (${y})`, ['Plan', 'Who it usually applies to', 'Yearly threshold', 'Monthly threshold', 'Rate'], thresholdRows)}`),
+      sec(`${head('What you repay at different salaries', `Yearly repayment for each plan, worked out as 9% of pay above the threshold (6% for the postgraduate loan). Divide by 12 for a monthly figure.`)}${tableWrap(`Yearly student loan repayment by salary (${y})`, ['Salary', 'Plan 1', 'Plan 2', 'Plan 4', 'Plan 5', 'Postgraduate'], rows)}
+<div class="callout"><p><strong>Worked example.</strong> On ${kfmt(40000)} with a Plan 2 loan you repay 9% of ${gbp(40000 - Y.loans.plan2)} (the pay above ${gbp(Y.loans.plan2)}), which is ${gbp(ex.studentLoan)} a year. Take-home falls from ${gbp(ex0.net)} to ${gbp(ex.net)}, or ${gbp(ex.periods.monthly)} a month. Add a postgraduate loan as well and the yearly repayment rises to ${gbp(both.studentLoan + both.postgrad)}.</p></div>`),
+      sec(`${head('How repayments work')}<div class="prose"><ul>
+<li><strong>Through payroll.</strong> Your employer deducts repayments with your tax and National Insurance and sends them to HMRC. If you are self-employed you repay through Self Assessment.</li>
+<li><strong>Percentage of the excess.</strong> Only the pay above the threshold counts, so you never repay more than 9% of the extra.</li>
+<li><strong>Several loans at once.</strong> A plan and a postgraduate loan are both deducted, each against its own threshold.</li>
+<li><strong>Separate from tax.</strong> Repayments are not tax. They come out after Income Tax and National Insurance, and they do not change your tax band.</li></ul>
+<p>Use the ${link('/take-home-pay-calculator/', 'take-home pay calculator')} to see your own figure with a pension, bonus and Scottish tax included.</p></div>`)
+    ],
+    f, relatedPaths: ['/take-home-pay-calculator/', '/salary-after-tax-calculator/', '/income-tax-calculator/', '/bonus-after-tax/', '/pension-and-take-home-pay/', '/tax-brackets-uk/']
+  });
+}
+
+// Scottish income tax
+function scottishPage() {
+  const path = '/scottish-income-tax/';
+  const SC = { ...UK, region: 'scotland' };
+  const bands = Y.scotland.map((b, i) => { let from = Y.personalAllowance; for (let j = 0; j < i; j++) from += Y.scotland[j].width; return [b.name, (b.rate * 100).toFixed(0) + '%', gbp(from + 1), isFinite(b.width) ? gbp(from + b.width) : 'and above']; });
+  let cross = 0; for (let s = 13000; s <= 80000; s += 50) { if (calc(s, SC).tax > calc(s, UK).tax + 0.005) { cross = s; break; } }
+  const crossTxt = kfmt(Math.floor(cross / 100) * 100);
+  const sals = [20000, 25000, 30000, 40000, 50000, 60000, 75000, 100000];
+  const rows = sals.map(n => { const u = calc(n, UK), s = calc(n, SC), d = s.tax - u.tax; return [sal(n), gbp(u.tax), gbp(s.tax), `<span class="${d > 0 ? 'e' : 'g'}">${d > 0 ? '+' : '-'}${gbp(Math.abs(d))}</span>`, gbp(s.periods.monthly)]; });
+  const e50 = calc(50000, SC).tax - calc(50000, UK).tax;
+  const f = faq([
+    ['Who pays Scottish Income Tax?', 'Scottish rates apply to people who are Scottish taxpayers, which generally means Scotland is your main place of residence. If so, your tax code starts with the letter S. HMRC decides who counts as a Scottish taxpayer.'],
+    ['Is National Insurance different in Scotland?', 'No. National Insurance is set for the whole UK, so it is the same in Scotland as in the rest of the UK.'],
+    [`Do I pay more tax in Scotland on ${kfmt(50000)}?`, `Yes, about ${gbp(e50)} more a year in ${y}, because the intermediate and higher rates are 21% and 42% (against 20% and 40% elsewhere in the UK).`],
+    ['Do I pay less tax in Scotland on a lower salary?', `Slightly. The 19% starter band means Scottish taxpayers pay a little less on incomes up to roughly ${crossTxt}, after which the higher intermediate rate outweighs the saving.`],
+    ['Do the personal allowance and the £100,000 taper still apply?', 'Yes. The Personal Allowance is the same and the taper above £100,000 works the same way. Only the rates and bands above the allowance differ.'],
+    ['Where do the Scottish bands come from?', `From the Scottish Government&rsquo;s published ${y} rates and bands on gov.scot. ${link('/about/', 'Our methodology')} lists our sources.`]
+  ]);
+  return guideShell({
+    path, name: 'Scottish Income Tax', badge: `Tax year ${y}`, h1: 'Scottish Income Tax',
+    title: `Scottish Income Tax ${y}: Bands, Rates and Take-Home Pay`,
+    desc: `Scottish Income Tax bands and rates for ${y}, with a comparison against England, Wales and Northern Ireland at £20k to £100k.`,
+    lead: `Scotland sets its own Income Tax bands. See every band for ${y}, and how much more or less tax you pay than elsewhere in the UK at common salaries.`,
+    sections: [
+      sec(`${head(`Scottish Income Tax bands ${y}`, `Six bands from 19% to 48%. Each rate applies only to the pay inside its band. The bands start after your Personal Allowance of ${gbp(Y.personalAllowance)}.`)}${tableWrap(`Scotland ${y}`, ['Band', 'Rate', 'From', 'To'], bands)}`),
+      sec(`${head('Scotland compared with the rest of the UK', 'Income Tax on the same salary in each region, with standard tax code and no other deductions. National Insurance is identical everywhere, so only Income Tax differs.')}${tableWrap(`Income Tax by salary: Scotland vs England, Wales and NI (${y})`, ['Salary', 'England, Wales &amp; NI', 'Scotland', 'Difference', 'Scottish take-home a month'], rows)}
+<div class="callout"><p><strong>The break-even point.</strong> Scottish taxpayers pay a little less than elsewhere in the UK up to roughly ${crossTxt}, thanks to the 19% starter rate. Above that the 21% intermediate and 42% higher rates mean more tax, about ${gbp(e50)} more at ${kfmt(50000)}.</p></div>`),
+      sec(`${head('Work out your own Scottish take-home pay')}<div class="prose"><p>Choose <strong>Scotland</strong> under &ldquo;Where do you pay tax?&rdquo; in the ${link('/take-home-pay-calculator/', 'take-home pay calculator')} or the ${link('/income-tax-calculator/', 'Income Tax calculator')} to see your bands, National Insurance, pension and student loan together. Scottish student loans are usually Plan 4, covered in our ${link('/student-loan-repayments/', 'student loan guide')}.</p></div>`)
+    ],
+    f, relatedPaths: ['/take-home-pay-calculator/', '/income-tax-calculator/', '/tax-brackets-uk/', '/student-loan-repayments/', '/salary-after-tax-calculator/', '/national-insurance-calculator/']
+  });
+}
+
+// Bonus
+function bonusPage() {
+  const path = '/bonus-after-tax/';
+  const sals = [30000, 50000, 60000, 100000];
+  const bonuses = [1000, 5000, 10000];
+  const keep = (s, b) => calc(s, { ...UK, bonus: b }).net - calc(s, UK).net;
+  const rows = sals.map(s => [sal(s), mr(s), ...bonuses.map(b => `<strong>${gbp(keep(s, b))}</strong> <small>(${pct(keep(s, b) / b, 0)})</small>`)]);
+  const b5 = 5000;
+  const sacRows = sals.map(s => { const cash = keep(s, b5); const c = calc(s, { ...UK, bonus: b5, sacrifice: b5 }); return [sal(s), gbp(cash), gbp(b5), gbp(c.net - calc(s, UK).net)]; });
+  const m1 = [['Up to the higher-rate threshold', mr(30000), `Pay up to ${gbp(Y.niUEL)}`], ['Higher rate', mr(60000), `${gbp(Y.niUEL)} to ${gbp(Y.taperStart)}`], ['Allowance taper', mr(110000), `${gbp(Y.taperStart)} to ${gbp(Y.additionalStart)}`], ['Additional rate', mr(150000), `Over ${gbp(Y.additionalStart)}`]];
+  const f = faq([
+    ['Is a bonus taxed at 40% or 50%?', 'No. There is no special bonus rate. A bonus is added to your other pay and taxed at the rates for the band it lands in, so the same bonus is taxed at 20%, 40% or 45% depending on the rest of your income. National Insurance is added on top.'],
+    ['Why does my bonus payslip show so much tax?', `Your employer taxes the bonus as part of the pay period it is paid in, and the tax code is worked out cumulatively across the year, so the payslip can look high in that month. Over the full year the total should match the annual calculation, but National Insurance is worked out per pay period, so a large one-off bonus can cost slightly more NI than the annual figure suggests.`],
+    ['How much of a £5,000 bonus do I keep?', `It depends on your salary. On ${kfmt(30000)} you keep about ${gbp(keep(30000, 5000))}, on ${kfmt(60000)} about ${gbp(keep(60000, 5000))} and on ${kfmt(100000)} about ${gbp(keep(100000, 5000))}, because a bonus that pushes you into a higher band is taxed more.`],
+    ['Can I put my bonus into my pension?', `Often yes. Sacrificing a bonus into a pension means no Income Tax or employee National Insurance is taken from it, so more of it is kept for you, although you cannot spend it until retirement. Check your employer&rsquo;s scheme and the pension annual allowance (£60,000 for most people). See our ${link('/pension-and-take-home-pay/', 'pension guide')}.`],
+    ['Does a bonus affect my student loan?', `Yes. Student loan repayments are based on pay subject to National Insurance, so a bonus increases the repayment when you are above your plan threshold. See ${link('/student-loan-repayments/', 'student loan repayments')}.`]
+  ]);
+  return guideShell({
+    path, name: 'Bonus After Tax', badge: `Tax year ${y}`, h1: 'Bonus After Tax UK',
+    title: `Bonus After Tax UK ${y}: How Much You Keep`,
+    desc: `How much of a £1,000, £5,000 or £10,000 bonus you keep after tax and National Insurance in ${y}, at salaries from £30k to £100k.`,
+    lead: `A bonus is taxed like the rest of your pay, so what you keep depends on your band. See what a bonus is really worth at common salaries in ${y}.`,
+    sections: [
+      sec(`${head('How much of a bonus you keep', `Extra take-home for a bonus on top of your salary (England, Wales and NI, code 1257L, no other deductions). The percentage is the share of the bonus you keep.`)}${tableWrap(`Bonus kept after tax and NI (${y})`, ['Salary', 'Rate on next £1 (tax + NI)', '£1,000 bonus', '£5,000 bonus', '£10,000 bonus'], rows)}`),
+      sec(`${head('The rate on your next pound', 'Income Tax plus employee National Insurance at each stage.')}${tableWrap(`Combined marginal rates (${y})`, ['Stage', 'Tax + NI on next £1', 'Pay range'], m1)}
+<div class="callout warn"><p><strong>Watch the £100,000 line.</strong> Above ${gbp(Y.taperStart)} you lose £1 of Personal Allowance for every £2 of extra pay, so a bonus can be taxed at about ${mr(110000)} once National Insurance is included.</p></div>`),
+      sec(`${head('Cash bonus or pension contribution?', `Compare taking a ${gbp(b5)} bonus as cash with sacrificing it into a pension.`)}${tableWrap(`${gbp(b5)} bonus: cash vs salary sacrifice (${y})`, ['Salary', 'Cash you keep', 'Goes into pension if sacrificed', 'Take-home change if sacrificed'], sacRows)}<div class="prose"><p>Sacrificing the whole bonus means no tax or employee National Insurance is taken, so the full ${gbp(b5)} goes into your pension while your take-home is unchanged. The cost is that you cannot spend it until you reach pension age.</p></div>`)
+    ],
+    f, relatedPaths: ['/take-home-pay-calculator/', '/pension-and-take-home-pay/', '/salary-after-tax-calculator/', '/income-tax-calculator/', '/student-loan-repayments/', '/tax-brackets-uk/']
+  });
+}
+
+// Pension
+function pensionPage() {
+  const path = '/pension-and-take-home-pay/';
+  const sals = [30000, 50000, 60000, 100000];
+  const pcts = [5, 10];
+  const base = s => calc(s, UK).net;
+  const cost = (s, p, t) => base(s) - calc(s, { ...UK, pensionPct: p, pensionType: t }).net;
+  const rows = [];
+  sals.forEach(s => pcts.forEach(p => {
+    const ras = calc(s, { ...UK, pensionPct: p, pensionType: 'ras' });
+    rows.push([`${sal(s)} at ${p}%`, `${gbp(s * p / 100)} / ${gbp(s * p / 100)} / ${gbp(ras.pensionGross)}`, gbp(cost(s, p, 'netpay')), gbp(cost(s, p, 'sacrifice')), gbp(cost(s, p, 'ras'))]);
+  }));
+  const r110 = calc(110000, UK), s110 = calc(110000, { ...UK, sacrifice: 10000 });
+  const f = faq([
+    ['What is the difference between net pay, salary sacrifice and relief at source?', 'With a net pay arrangement your contribution comes out before tax, so you get tax relief at once but still pay National Insurance. With salary sacrifice you give up part of your salary, so you save tax and employee National Insurance. With relief at source you pay from take-home pay and the pension provider adds basic-rate tax relief.'],
+    ['Does salary sacrifice have downsides?', 'It lowers your contractual salary, which can affect things worked out from pay, such as some mortgage or statutory payments, and your pay must stay above the National Minimum Wage after the sacrifice. Check with your employer before you agree.'],
+    ['How do higher-rate taxpayers get their extra relief?', 'Under net pay and salary sacrifice it happens automatically. Under relief at source the provider adds 20% and you claim the extra 20% (or 25%) through Self Assessment or by contacting HMRC.'],
+    ['Can a pension contribution help if I earn over £100,000?', `Yes. Contributions reduce adjusted net income, which can bring back some of the Personal Allowance you lose above ${gbp(Y.taperStart)}. At ${kfmt(110000)}, sacrificing ${gbp(10000)} into a pension cuts your take-home by only ${gbp(r110.net - s110.net)}.`],
+    ['Is there a limit to how much I can pay into a pension?', 'Yes. The annual allowance is £60,000 for most people and it can be reduced for very high earners. Tax relief is also limited to 100% of your UK earnings in the year. Check GOV.UK for the current rules.'],
+    ['Are these figures exact?', `They are estimates using the ${y} rates, code 1257L and annual pay. Your employer&rsquo;s scheme, tax code and pay dates can change the real figures. See ${link('/about/', 'our methodology')}.`]
+  ]);
+  return guideShell({
+    path, name: 'Pension and Take-Home Pay', badge: `Tax year ${y}`, h1: 'Pension and Take-Home Pay',
+    title: `Pension and Take-Home Pay UK ${y}: Net Pay vs Sacrifice`,
+    desc: `How a pension contribution changes your take-home pay in ${y} under net pay, salary sacrifice and relief at source, at £30k to £100k.`,
+    lead: `The way your pension is paid changes what it costs you. Compare net pay, salary sacrifice and relief at source at common salaries in ${y}.`,
+    sections: [
+      sec(`${head('Three ways pension contributions work')}<div class="cols3">
+<div class="card"><h3>Net pay arrangement</h3><p style="margin:0;color:var(--slate-2);font-size:15px">The contribution is taken before Income Tax, so you get relief at your top rate immediately. National Insurance is still charged on your full pay.</p></div>
+<div class="card"><h3>Salary sacrifice</h3><p style="margin:0;color:var(--slate-2);font-size:15px">You give up part of your salary and your employer pays it into the pension. You save Income Tax and employee National Insurance.</p></div>
+<div class="card"><h3>Relief at source</h3><p style="margin:0;color:var(--slate-2);font-size:15px">You pay from take-home pay and the provider adds 20% basic-rate relief. Higher-rate relief is claimed separately. National Insurance is not reduced.</p></div></div>`),
+      sec(`${head('What each method costs your take-home pay', `Yearly fall in take-home pay for a percentage of salary. &ldquo;Into pension&rdquo; shows what reaches the pot under net pay, salary sacrifice and relief at source in that order.`)}${tableWrap(`Pension cost to take-home by method (${y})`, ['Salary and contribution', 'Into pension (net pay / sacrifice / relief at source)', 'Take-home falls by: net pay', 'Salary sacrifice', 'Relief at source'], rows)}
+<div class="callout"><p><strong>Reading the table.</strong> A contribution of the same size costs least under salary sacrifice, because it also avoids employee National Insurance. Under relief at source the pot receives more because the provider adds tax relief, but your own payment is also larger.</p></div>`),
+      sec(`${head(`Pension and the ${gbp(Y.taperStart)} allowance taper`)}<div class="prose"><p>Between ${gbp(Y.taperStart)} and ${gbp(Y.additionalStart)} the effective rate on extra pay is about ${mr(110000)}. A pension contribution reduces the income the taper is based on. At ${kfmt(110000)}, sacrificing ${gbp(10000)} into a pension lowers take-home by ${gbp(r110.net - s110.net)} even though ${gbp(10000)} goes into the pot. The same effect can help you stay under the ${gbp(Y.taperStart)} limit for Tax-Free Childcare and free childcare hours.</p></div>`)
+    ],
+    f, relatedPaths: ['/take-home-pay-calculator/', '/bonus-after-tax/', '/salary-after-tax-calculator/', '/income-tax-calculator/', '/student-loan-repayments/', '/tax-brackets-uk/']
+  });
+}
+
 // ---- Registry ---------------------------------------------------------------------------------------
 export function buildAll() {
   const pages = {
@@ -532,7 +697,7 @@ export function buildAll() {
     '/national-insurance-calculator/': niPage(), '/monthly-salary-calculator/': monthlyPage(), '/weekly-salary-calculator/': weeklyPage(),
     '/hourly-salary-calculator/': hourlyPage(), '/salary-after-tax-calculator/': afterTaxPage(),
     '/tax-brackets-uk/': taxBracketsPage(), '/about/': aboutPage(),
-    '/contact/': contactPage(), '/privacy-policy/': privacyPage(), '/terms-of-service/': termsPage(), '/disclaimer/': disclaimerPage()
+    '/contact/': contactPage(), '/student-loan-repayments/': studentLoanPage(), '/scottish-income-tax/': scottishPage(), '/bonus-after-tax/': bonusPage(), '/pension-and-take-home-pay/': pensionPage(), '/privacy-policy/': privacyPage(), '/terms-of-service/': termsPage(), '/disclaimer/': disclaimerPage()
   };
   for (const n of SALARIES) pages[salaryPath(n)] = salaryPage(n);
   return pages;
