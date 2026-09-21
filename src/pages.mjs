@@ -169,7 +169,7 @@ ${tableWrap(`Income Tax by salary, ${y} (England, Wales &amp; NI)`, ['Salary', '
 <ul><li><strong>BR</strong>: all pay taxed at 20% (often a second job).</li><li><strong>D0 / D1</strong>: all pay taxed at 40% or 45%.</li><li><strong>0T</strong>: no allowance, so tax from the first pound.</li><li><strong>K codes</strong>: you owe tax on untaxed income, so the code adds to your taxable pay.</li><li><strong>S prefix</strong>: Scottish taxpayer. <strong>C prefix</strong>: Welsh taxpayer (Welsh rates currently match England).</li></ul></div>`);
   return calcPage({
     path: '/income-tax-calculator/', salary: s, extra,
-    title: `Income Tax Calculator UK ${y} – Tax by Band, England & Scotland`,
+    title: `Income Tax Calculator UK ${y} – Tax by Band`,
     desc: `Calculate UK Income Tax for ${y} band by band. Includes Scottish rates, tax codes, the £100k allowance taper, and effective vs. marginal rates.`,
     h1: 'Income Tax Calculator UK', badge: `Income Tax ${y}`,
     lead: `See how much Income Tax you pay on your salary, split across each ${y} tax band, for England, Wales, Northern Ireland or Scotland.`,
@@ -282,7 +282,7 @@ function afterTaxPage() {
   return calcPage({
     path: '/salary-after-tax-calculator/', salary: s, extra,
     title: `Salary After Tax Calculator UK ${y} – Annual Take-Home Pay`,
-    desc: `See your UK salary after tax for ${y}. Enter your annual salary and get take-home pay after Income Tax, NI, pension and student loan, plus a table of common salaries.`,
+    desc: `See your UK salary after tax for ${y}. Enter your annual salary and get take-home pay after Income Tax, NI, pension and student loan.`,
     h1: 'Salary After Tax Calculator UK', badge: `Salary after tax ${y}`,
     lead: `Enter your gross annual salary to see your net salary after tax, how much of each extra pound you keep, and how you compare with other salary levels.`,
     faqItems: [
