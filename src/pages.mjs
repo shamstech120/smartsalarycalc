@@ -480,7 +480,7 @@ function privacyPage() {
 <h2>Calculator inputs</h2><p>The salary, pension and student loan figures you enter are processed in your browser. They are not sent to our servers or stored by us.</p>
 <h2>Information we collect</h2><p>We do not ask you to create an account and we do not collect your name or contact details through the calculators. If you email us, we receive your email address and the contents of your message and use them only to reply.</p>
 <h2>Hosting and logs</h2><p>The site is hosted on Vercel, which may process technical data such as your IP address, browser type and the pages requested, in server logs for security and performance.</p>
-<h2>Cookies and third parties</h2><p>We do not currently set advertising or tracking cookies. If we add analytics or advertising in future, we will update this policy and, where the law requires, ask for your consent first.</p>
+<h2>Advertising and cookies</h2><p>We use Google AdSense to display advertising. Google, as a third-party vendor, uses cookies (including the DoubleClick cookie) to serve ads based on your visits to this site and other sites on the internet. You can turn off personalised advertising in <a href="https://adssettings.google.com" rel="noopener">Google Ads Settings</a>, and you can opt out of some third-party vendors&rsquo; use of cookies for personalised advertising at <a href="https://www.aboutads.info" rel="noopener">aboutads.info</a>. You can read how Google uses information from sites that use its services at <a href="https://policies.google.com/technologies/partner-sites" rel="noopener">policies.google.com/technologies/partner-sites</a>. Where the law requires it, for example in the UK and the European Economic Area, we will ask for your consent before setting advertising cookies.</p>
 <h2>Your rights</h2><p>Under UK GDPR you can ask what personal data we hold about you, and ask us to correct or delete it. Contact us using the email below.</p>
 <h2>Changes</h2><p>We may update this policy from time to time. The date at the bottom shows when it last changed.</p>
 ${contactLine}`);
@@ -505,6 +505,26 @@ function disclaimerPage() {
 ${contactLine}`);
 }
 
+
+// ---- Contact (indexable) ----------------------------------------------------------------------------
+function contactPage() {
+  const path = '/contact/';
+  const body = `${crumbsHtml(breadcrumb(path, 'Contact'))}
+${hero({ h1: 'Contact', lead: `Questions, corrections and suggestions for ${SITE.name}.` })}
+${sec(`<div class="prose">
+<p>We read every message. The quickest way to reach us is email:</p>
+<p><strong><a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a></strong></p>
+<h2>What to write to us about</h2><ul>
+<li>A tax rate, threshold or figure that looks out of date or wrong. Please include the page and a link to the official GOV.UK or gov.scot source if you have one.</li>
+<li>A bug or something that does not work in a calculator, with your browser and device.</li>
+<li>A calculator or guide you would like to see.</li>
+<li>Privacy questions or requests. See our ${link('/privacy-policy/', 'privacy policy')}.</li></ul>
+<h2>What we cannot do</h2><p>We cannot give personal tax, legal or employment advice, and we cannot see or change your payslip. For questions about your own tax code or deductions, contact your employer&rsquo;s payroll team, HMRC or a qualified adviser.</p>
+<h2>Response time</h2><p>We aim to reply within a few working days.</p>
+</div>`)}`;
+  return layout({ path, title: `Contact – ${SITE.name}`, desc: `Contact ${SITE.name} with questions, corrections or suggestions.`, h1: 'Contact', body, crumbs: breadcrumb(path, 'Contact') });
+}
+
 // ---- Registry ---------------------------------------------------------------------------------------
 export function buildAll() {
   const pages = {
@@ -512,7 +532,7 @@ export function buildAll() {
     '/national-insurance-calculator/': niPage(), '/monthly-salary-calculator/': monthlyPage(), '/weekly-salary-calculator/': weeklyPage(),
     '/hourly-salary-calculator/': hourlyPage(), '/salary-after-tax-calculator/': afterTaxPage(),
     '/tax-brackets-uk/': taxBracketsPage(), '/about/': aboutPage(),
-    '/privacy-policy/': privacyPage(), '/terms-of-service/': termsPage(), '/disclaimer/': disclaimerPage()
+    '/contact/': contactPage(), '/privacy-policy/': privacyPage(), '/terms-of-service/': termsPage(), '/disclaimer/': disclaimerPage()
   };
   for (const n of SALARIES) pages[salaryPath(n)] = salaryPage(n);
   return pages;

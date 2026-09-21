@@ -29,7 +29,7 @@ export const CALC_PAGES = [
 export const salaryPath = n => `/${n}-salary-after-tax/`;
 export const LIVE = new Set([
   ...CALC_PAGES.map(p => p.path), ...SALARIES.map(salaryPath), '/tax-brackets-uk/', '/about/',
-  '/privacy-policy/', '/terms-of-service/', '/disclaimer/'
+  '/privacy-policy/', '/terms-of-service/', '/disclaimer/', '/contact/'
 ]);
 export const NOINDEX = new Set(['/privacy-policy/', '/terms-of-service/', '/disclaimer/']);
 export const CONTACT_EMAIL = 'theserpmaster@gmail.com';
@@ -39,7 +39,7 @@ export const NAMES = {
   '/monthly-salary-calculator/': 'Monthly Salary Calculator', '/weekly-salary-calculator/': 'Weekly Salary Calculator',
   '/hourly-salary-calculator/': 'Hourly Salary Calculator', '/salary-after-tax-calculator/': 'Salary After Tax Calculator',
   '/tax-brackets-uk/': 'UK Tax Brackets', '/about/': 'About & Methodology',
-  '/privacy-policy/': 'Privacy Policy', '/terms-of-service/': 'Terms of Service', '/disclaimer/': 'Disclaimer',
+  '/contact/': 'Contact', '/privacy-policy/': 'Privacy Policy', '/terms-of-service/': 'Terms of Service', '/disclaimer/': 'Disclaimer',
   ...Object.fromEntries(SALARIES.map(n => [salaryPath(n), `${k(n)} Salary After Tax`]))
 };
 
@@ -82,7 +82,7 @@ export function layout({ path, title, desc, h1, body, ld = [], calcPage = false,
     ...ld
   ] };
   const footCalc = ['/', '/take-home-pay-calculator/', '/income-tax-calculator/', '/national-insurance-calculator/', '/salary-after-tax-calculator/'];
-  const footMore = ['/monthly-salary-calculator/', '/weekly-salary-calculator/', '/hourly-salary-calculator/', '/tax-brackets-uk/', '/about/'];
+  const footMore = ['/monthly-salary-calculator/', '/weekly-salary-calculator/', '/hourly-salary-calculator/', '/tax-brackets-uk/', '/about/', '/contact/'];
   const li = ps => ps.filter(p => LIVE.has(p)).map(p => `<li><a href="${p}">${NAMES[p]}</a></li>`).join('');
   return `<!doctype html>
 <html lang="en-GB">
@@ -130,7 +130,7 @@ ${body}
       <div><h4>Calculators</h4><ul>${li(footCalc)}</ul></div>
       <div><h4>More</h4><ul>${li(footMore)}</ul></div>
       <div><h4>Popular salaries</h4><ul>${li(SALARIES.map(salaryPath))}</ul></div>
-      <div><h4>Legal</h4><ul>${li(['/privacy-policy/', '/terms-of-service/', '/disclaimer/'])}<li><a href="mailto:theserpmaster@gmail.com">Contact</a></li></ul></div>
+      <div><h4>Legal</h4><ul>${li(['/privacy-policy/', '/terms-of-service/', '/disclaimer/'])}</ul></div>
     </div>
     <div class="foot-base"><span>© ${new Date().getFullYear()} ${SITE.name}. Estimates only, not financial or tax advice.</span><span>Covers England, Scotland, Wales and Northern Ireland.</span></div>
   </div>
