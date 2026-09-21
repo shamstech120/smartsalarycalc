@@ -28,14 +28,18 @@ export const CALC_PAGES = [
 ];
 export const salaryPath = n => `/${n}-salary-after-tax/`;
 export const LIVE = new Set([
-  ...CALC_PAGES.map(p => p.path), ...SALARIES.map(salaryPath), '/tax-brackets-uk/', '/about/'
+  ...CALC_PAGES.map(p => p.path), ...SALARIES.map(salaryPath), '/tax-brackets-uk/', '/about/',
+  '/privacy-policy/', '/terms-of-service/', '/disclaimer/'
 ]);
+export const NOINDEX = new Set(['/privacy-policy/', '/terms-of-service/', '/disclaimer/']);
+export const CONTACT_EMAIL = 'theserpmaster@gmail.com';
 export const NAMES = {
   '/': 'Salary Calculator UK', '/take-home-pay-calculator/': 'Take Home Pay Calculator',
   '/income-tax-calculator/': 'Income Tax Calculator', '/national-insurance-calculator/': 'National Insurance Calculator',
   '/monthly-salary-calculator/': 'Monthly Salary Calculator', '/weekly-salary-calculator/': 'Weekly Salary Calculator',
   '/hourly-salary-calculator/': 'Hourly Salary Calculator', '/salary-after-tax-calculator/': 'Salary After Tax Calculator',
   '/tax-brackets-uk/': 'UK Tax Brackets', '/about/': 'About & Methodology',
+  '/privacy-policy/': 'Privacy Policy', '/terms-of-service/': 'Terms of Service', '/disclaimer/': 'Disclaimer',
   ...Object.fromEntries(SALARIES.map(n => [salaryPath(n), `${k(n)} Salary After Tax`]))
 };
 
@@ -126,6 +130,7 @@ ${body}
       <div><h4>Calculators</h4><ul>${li(footCalc)}</ul></div>
       <div><h4>More</h4><ul>${li(footMore)}</ul></div>
       <div><h4>Popular salaries</h4><ul>${li(SALARIES.map(salaryPath))}</ul></div>
+      <div><h4>Legal</h4><ul>${li(['/privacy-policy/', '/terms-of-service/', '/disclaimer/'])}<li><a href="mailto:theserpmaster@gmail.com">Contact</a></li></ul></div>
     </div>
     <div class="foot-base"><span>© ${new Date().getFullYear()} ${SITE.name}. Estimates only, not financial or tax advice.</span><span>Covers England, Scotland, Wales and Northern Ireland.</span></div>
   </div>

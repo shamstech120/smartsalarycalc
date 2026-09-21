@@ -2,7 +2,7 @@
 import {
   E, R, SITE, SALARIES, CALC_PAGES, LIVE, NAMES, salaryPath, link, links, faq, calc, gbp, pct, kfmt, icon,
   layout, breadcrumb, crumbsHtml, calcOpen, calcClose, calcWidget, statsSection, compareSection, bandsSection,
-  trustSection, ctaSection, hero, tableWrap, popularTiles
+  trustSection, ctaSection, hero, tableWrap, popularTiles, CONTACT_EMAIL
 } from './site.mjs';
 
 const Y = E.YEARS['2026-27'];
@@ -466,13 +466,53 @@ ${sec(`<div class="prose">
   return layout({ path, title: `About & Methodology – ${SITE.name}`, desc: `How ${SITE.name} calculates UK take-home pay: assumptions, sources and limitations for ${y}.`, h1: 'About and methodology', body, crumbs: breadcrumb(path, 'About & Methodology') });
 }
 
+
+// ---- Legal pages (noindex, excluded from sitemap) ----------------------------------------------------
+function legalPage(path, name, lead, inner) {
+  const body = `${crumbsHtml(breadcrumb(path, name))}
+${hero({ h1: name, lead })}
+${sec(`<div class="prose">${inner}<p>Last updated: ${SITE.built}.</p></div>`)}`;
+  return layout({ path, title: `${name} – ${SITE.name}`, desc: `${name} for ${SITE.name}.`, h1: name, body, crumbs: breadcrumb(path, name), noindex: true });
+}
+const contactLine = `<p>Questions about this page? Email <a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a>.</p>`;
+function privacyPage() {
+  return legalPage('/privacy-policy/', 'Privacy Policy', `How ${SITE.name} handles your information.`, `
+<h2>Calculator inputs</h2><p>The salary, pension and student loan figures you enter are processed in your browser. They are not sent to our servers or stored by us.</p>
+<h2>Information we collect</h2><p>We do not ask you to create an account and we do not collect your name or contact details through the calculators. If you email us, we receive your email address and the contents of your message and use them only to reply.</p>
+<h2>Hosting and logs</h2><p>The site is hosted on Vercel, which may process technical data such as your IP address, browser type and the pages requested, in server logs for security and performance.</p>
+<h2>Cookies and third parties</h2><p>We do not currently set advertising or tracking cookies. If we add analytics or advertising in future, we will update this policy and, where the law requires, ask for your consent first.</p>
+<h2>Your rights</h2><p>Under UK GDPR you can ask what personal data we hold about you, and ask us to correct or delete it. Contact us using the email below.</p>
+<h2>Changes</h2><p>We may update this policy from time to time. The date at the bottom shows when it last changed.</p>
+${contactLine}`);
+}
+function termsPage() {
+  return legalPage('/terms-of-service/', 'Terms of Service', `The terms for using ${SITE.name}.`, `
+<h2>Using the site</h2><p>${SITE.name} is a free tool that provides estimates of UK take-home pay. By using it you agree to these terms.</p>
+<h2>Estimates only</h2><p>Results are estimates based on the assumptions described on our ${link('/about/', 'methodology page')}. They are not a payslip, a tax return or a guarantee of what you will receive.</p>
+<h2>No advice</h2><p>Nothing on this site is financial, tax, legal or employment advice. Check figures with HMRC, GOV.UK or a qualified adviser before you rely on them.</p>
+<h2>Accuracy</h2><p>We aim to keep rates and thresholds up to date but do not promise that the site is free of errors or omissions, or that it will always be available.</p>
+<h2>Liability</h2><p>To the fullest extent the law allows, we are not liable for any loss arising from your use of, or reliance on, the site. Nothing here limits liability that cannot lawfully be limited.</p>
+<h2>Intellectual property</h2><p>The content and design of the site belong to ${SITE.name}. You may link to it, but please do not copy it wholesale.</p>
+<h2>Changes</h2><p>We may change the site or these terms at any time. Continued use means you accept the updated terms.</p>
+${contactLine}`);
+}
+function disclaimerPage() {
+  return legalPage('/disclaimer/', 'Disclaimer', `Please read before relying on any figure from ${SITE.name}.`, `
+<h2>Not financial or tax advice</h2><p>${SITE.name} provides general information and estimates only. It is not financial, tax, legal or employment advice, and it does not replace advice from a qualified professional.</p>
+<h2>Your figures may differ</h2><p>Your real take-home pay depends on your tax code, pay period, employer pension scheme, benefits in kind, student loan timing and other personal circumstances that the calculator cannot see.</p>
+<h2>Official sources</h2><p>Always confirm rates and thresholds with GOV.UK, HMRC and, for Scottish Income Tax, gov.scot. If a figure here differs from an official source, the official source is correct.</p>
+<h2>Third-party links</h2><p>Any external links are provided for convenience. We are not responsible for the content of other websites.</p>
+${contactLine}`);
+}
+
 // ---- Registry ---------------------------------------------------------------------------------------
 export function buildAll() {
   const pages = {
     '/': homePage(), '/take-home-pay-calculator/': takeHomePage(), '/income-tax-calculator/': incomeTaxPage(),
     '/national-insurance-calculator/': niPage(), '/monthly-salary-calculator/': monthlyPage(), '/weekly-salary-calculator/': weeklyPage(),
     '/hourly-salary-calculator/': hourlyPage(), '/salary-after-tax-calculator/': afterTaxPage(),
-    '/tax-brackets-uk/': taxBracketsPage(), '/about/': aboutPage()
+    '/tax-brackets-uk/': taxBracketsPage(), '/about/': aboutPage(),
+    '/privacy-policy/': privacyPage(), '/terms-of-service/': termsPage(), '/disclaimer/': disclaimerPage()
   };
   for (const n of SALARIES) pages[salaryPath(n)] = salaryPage(n);
   return pages;

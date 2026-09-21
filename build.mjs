@@ -2,7 +2,7 @@
 import { mkdirSync, writeFileSync, copyFileSync, rmSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { buildAll } from './src/pages.mjs';
-import { SITE, layout } from './src/site.mjs';
+import { SITE, layout, NOINDEX } from './src/site.mjs';
 
 const OUT = 'dist';
 if (existsSync(OUT)) rmSync(OUT, { recursive: true, force: true });
@@ -25,6 +25,6 @@ for (const f of ['engine.js', 'render.js', 'calc.js', 'style.css']) copyFileSync
 writeFileSync(join(OUT, 'favicon.svg'), `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="#2563EB"/><text x="16" y="23" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="700" font-size="21" fill="#fff">£</text></svg>`);
 writeFileSync(join(OUT, 'robots.txt'), `User-agent: *\nAllow: /\n\nSitemap: ${SITE.url}/sitemap.xml\n`);
 writeFileSync(join(OUT, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
-  Object.keys(pages).map(p => `  <url><loc>${SITE.url}${p}</loc><lastmod>${SITE.built}</lastmod></url>`).join('\n') + `\n</urlset>\n`);
+  Object.keys(pages).filter(p => !NOINDEX.has(p)).map(p => `  <url><loc>${SITE.url}${p}</loc><lastmod>${SITE.built}</lastmod></url>`).join('\n') + `\n</urlset>\n`);
 
 console.log(`Built ${Object.keys(pages).length} pages -> ${OUT}/  (canonical base: ${SITE.url})`);
