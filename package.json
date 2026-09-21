@@ -1,0 +1,13 @@
+{
+  "name": "salary-calculator-uk",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Static UK salary calculator site (Phase 1 of the 70-page topical map)",
+  "scripts": {
+    "test": "node --test tests/engine.test.mjs",
+    "check": "node build.mjs && node tests/check-site.mjs",
+    "build": "node build.mjs",
+    "serve": "node serve.mjs"
+  }
+}

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://smartsalarycalc.co.uk/sitemap.xml
