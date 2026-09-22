@@ -1,5 +1,5 @@
 // Static build: node build.mjs   (set SITE_URL=https://yourdomain.com for canonical URLs and the sitemap)
-import { mkdirSync, writeFileSync, copyFileSync, rmSync, existsSync } from 'node:fs';
+import { mkdirSync, writeFileSync, copyFileSync, rmSync, existsSync, cpSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { buildAll } from './src/pages.mjs';
 import { SITE, layout, NOINDEX } from './src/site.mjs';
@@ -21,6 +21,7 @@ writeFileSync(join(OUT, '404.html'), layout({
   body: `<section class="hero"><div class="container"><h1>Page not found</h1><p class="lead">That page does not exist. Try the <a href="/">salary calculator</a>.</p></div></section>`
 }));
 
+cpSync(join('src', 'fonts'), join(OUT, 'fonts'), { recursive: true });
 for (const f of ['engine.js', 'render.js', 'calc.js', 'style.css', 'og-image.png']) copyFileSync(join('src', f), join(OUT, f));
 writeFileSync(join(OUT, 'favicon.svg'), `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="#2563EB"/><text x="16" y="23" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="700" font-size="21" fill="#fff">£</text></svg>`);
 writeFileSync(join(OUT, 'robots.txt'), `User-agent: *\nAllow: /\n\nSitemap: ${SITE.url}/sitemap.xml\n`);

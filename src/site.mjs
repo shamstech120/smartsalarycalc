@@ -113,8 +113,7 @@ ${noindex ? '<meta name="robots" content="noindex">' : '<meta name="robots" cont
 <meta property="og:locale" content="en_GB"><meta property="og:image" content="${SITE.url}/og-image.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="UK salary calculator: take-home pay after tax and National Insurance"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="${SITE.url}/og-image.png">
 <meta name="theme-color" content="#2563eb">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@600;700&family=Inter:wght@400;500;600&display=swap" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@600;700&family=Inter:wght@400;500;600&display=swap"></noscript>
+<link rel="preload" href="/fonts/inter.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="/fonts/hanken-grotesk.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/style.css?v=${ASSET_V}">
 <script type="application/ld+json">${JSON.stringify(graph)}</script>
 </head>
